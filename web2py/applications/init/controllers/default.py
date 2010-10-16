@@ -52,4 +52,14 @@ def call():
     session.forget()
     return service()
 
-
+@service.json
+def getNotes(lat, lng):
+    """
+    Get notes based on geolocation
+    """
+    result = {'notes':[{'title':'test1',
+                        'description':'test1',
+                        'lat': 57.65930,
+                        'lng': 11.9196175}]}
+    print('%s : %s' % (lat, lng))
+    return result

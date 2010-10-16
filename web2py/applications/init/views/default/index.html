@@ -1,25 +1,85 @@
-{{extend 'layout.html'}}
-
-{{if 'message' in globals():}}{{=H2(message)}}{{else:}}{{=BEAUTIFY(response._vars)}}{{pass}}
-
-<hr />
-<h1>README</h1>
-<ul>
-  <li>{{=T('You are successfully running web2py')}}</li>
-  <li>{{=T('This is a copy of the scaffolding application')}}</li>
-  <li>{{=T('You can modify this application and adapt it to your needs')}}</li>
-  <li>{{=A(B(T("click here for the administrative interface")), _href=URL('admin','default','index'))}}</li>
-  <li>{{=A(T("click here for online examples"), _href=URL('examples','default','index'))}}</li>
-  <li><a href="http://web2py.com">web2py.com</a></li>
-  <li><a href="http://web2py.com/book">{{=T('documentation')}}</a></li>
-</ul>
-
-<ol>
-  <li>{{=T('You visited the url')}} {{=A(request.env.path_info,_href=request.env.path_info)}}</li>
-  <li>{{=T('Which called the function')}} {{=A(request.function+'()',_href='#')}} {{=T('located in the file')}}
-    {{=A('web2py/applications/%(application)s/controllers/%(controller)s.py'%request,_href=URL('admin','default','peek',args=(request.application,'controllers',request.controller+'.py')))}}</li>
-  <li>{{=T('The output of the file is a dictionary that was rendered by the view')}}
-    {{=A('web2py/applications/%(application)s/views/%(controller)s/index.html'%request,_href=URL('admin','default','peek',args=(request.application,'views',request.controller,'index.html')))}}</li>
-</ol>
-
-
+<!DOCTYPE html> 
+<html> 
+    <head> 
+        <title>Geolocation Test</title> 
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+        <style type="text/css" media="screen"> 
+		#map_canvas{
+			width: 480px;
+			height: 320px;
+		}
+		</style> 
+       <script language="JavaScript" src="{{=URL(r=request, c='static', f="jquery.js")}}"></script>
+        <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script> 
+        <script type="text/javascript"> 
+        	var map;
+        	var initialLocation = new google.maps.LatLng(57.709032, 11.980046); //Lavasoft
+        	var currentLocation;
+        	var browserSupportFlag = new Boolean();
+ 
+        	function mapInit() {
+            	var mapOptions = {
+                    	zoom: 16,
+                    	mapTypeId: google.maps.MapTypeId.ROADMAP,
+                    	center: initialLocation
+                };
+                map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+               	
+				if (navigator.geolocation) {
+               		browserSupportFlag = true;
+                   	navigator.geolocation.getCurrentPosition(function(position) {
+                       	currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                        initialLocation = currentLocation;
+						map.setCenter(initialLocation);
+						markMyself(initialLocation);
+						placeNotes(position.coords.latitude, position.coords.longitude);
+                       	},	function() {
+							//Failure handling
+                            handleNoGeolocation(browserSupportFlag);
+                        });
+                } else {
+                	browserSupportFlag = false;
+                    handleNoGeolocation(browserSupportFlag);
+                }
+           	}
+ 
+			function markMyself(myLocation) {
+                image = "http://maps.google.com/mapfiles/arrow.png"
+                var marker = new google.maps.Marker({
+                    position: myLocation,
+                	map: map,
+                	icon: image 
+                    });
+			}
+ 
+			function placeNotes(lat, lng) {
+				$('#result').append('<p>' + lat + ',' + lng + '</p>');
+				$.getJSON('{{=URL(r=request, c="default", f="call/json/getNotes")}}', 
+						{"lat": lat, "lng": lng},
+						function(data){
+					$.each(data.notes, function(i, item){
+						var marker = new google.maps.Marker({
+							position: new google.maps.LatLng(item.lat, item.lng),
+							map: map,
+							title: item.title
+						});
+					});
+				});
+			}
+ 
+           	function handleNoGeolocation(errorFlag) {
+				markMyself(initialLocation);
+				placeNotes();
+               	alert("errorFlag: " + errorFlag);
+           	}
+           	
+           	$(function() {
+               	mapInit();
+          	});
+        </script> 
+    </head> 
+    <body> 
+        <div id="map_canvas"></div>
+        <div id="result"></div>
+    </body> 
+</html>
