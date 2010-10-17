@@ -74,3 +74,6 @@ crud.settings.auth = None                      # =auth to enforce authorization 
 ## >>> rows=db(db.mytable.myfield=='value').select(db.mytable.ALL)
 ## >>> for row in rows: print row.id, row.myfield
 #########################################################################
+db.define_table('notes',
+                Field('create_by', db.auth_user, default=auth.user_id),
+                Field('content', 'text')))
