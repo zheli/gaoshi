@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*- 
-
+if 0:
+    from gluon.globals import *
+    from gluon.html import *
+    from gluon.http import *
+    from gluon.sqlhtml import SQLFORM, SQLTABLE, form_factory
+    session = Session()
+    request = Request()
+    response = Response()
 #########################################################################
 ## This is a samples controller
 ## - index is the default action of any application
@@ -59,7 +66,11 @@ def getNotes(lat, lng):
     """
     result = {'notes':[{'title':'test1',
                         'description':'test1',
-                        'lat': 57.65930,
-                        'lng': 11.9196175}]}
+                        'lat': (float(lat) - 0.001),
+                        'lng': (float(lng) - 0.001)},
+                        {'title':'test2',
+                        'description':'test2',
+                        'lat': (float(lat) + 0.001),
+                        'lng': (float(lng) + 0.001)}]}
     print('%s : %s' % (lat, lng))
     return result

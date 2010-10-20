@@ -57,14 +57,15 @@
 				$.getJSON('{{=URL(r=request, c="default", f="call/json/getNotes")}}', 
 						{"lat": lat, "lng": lng},
 						function(data){
-					$.each(data.notes, function(i, item){
-						var marker = new google.maps.Marker({
-							position: new google.maps.LatLng(item.lat, item.lng),
-							map: map,
-							title: item.title
-						});
-					});
-				});
+							$.each(data.notes, function(i, item){
+								var marker = new google.maps.Marker({
+									position: new google.maps.LatLng(item.lat, item.lng),
+									map: map,
+									title: item.title
+								});
+							});
+						}
+				);
 			}
  
            	function handleNoGeolocation(errorFlag) {

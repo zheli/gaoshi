@@ -76,4 +76,4 @@ crud.settings.auth = None                      # =auth to enforce authorization 
 #########################################################################
 db.define_table('notes',
                 Field('create_by', db.auth_user, default=auth.user_id),
-                Field('content', 'text')))
+                Field('content', 'text'))
