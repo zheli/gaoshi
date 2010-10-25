@@ -38,6 +38,18 @@ mail.settings.sender = 'you@gmail.com'         # your email
 mail.settings.login = 'username:password'      # your credentials or None
 
 auth.settings.hmac_key = 'sha512:65936c89-5742-498b-b602-69b9ad7482b0'   # before define_tables()
+auth_table = db.define_table(
+    auth.settings.table_user_name,
+    Field('first_name', length=128, default=""),
+    Field('last_name', length=128, default=""),
+    Field('username', length=128, default="", unique=True),
+    Field('password', 'password', length=256,
+          readable=False, label='Password'),
+    Field('registration_key', length=128, default= "",
+          writable=False, readable=False))
+
+auth_table.username.requires = IS_NOT_IN_DB(db, auth_table.username)
+
 auth.define_tables()                           # creates all needed tables
 auth.settings.mailer = mail                    # for user email verification
 auth.settings.registration_requires_verification = False
@@ -55,6 +67,32 @@ auth.messages.reset_password = 'Click on the link http://'+request.env.http_host
 #    url = "http://localhost:8000/%s/default/user/login" % request.application)
 ## other login methods are in gluon/contrib/login_methods
 #########################################################################
+
+toa = local_import('twitter_oauth_data')
+CLIENT_ID=toa.CLIENT_ID
+CLIENT_SECRET=toa.CLIENT_SECRET
+AUTH_URL=toa.AUTH_URL
+TOKEN_URL=toa.TOKEN_URL
+ACCESS_TOKEN_URL=toa.ACCESS_TOKEN_URL
+from gluon.contrib.login_methods.oauth10a_account import OAuthAccount
+import oauth2 as oauth
+import gluon.contrib.simplejson as json
+class TwitterTest(OAuthAccount):
+    def get_user(self):
+        if self.accessToken() is not None:
+            client = oauth.Client(self.consumer, self.accessToken())
+            resp, content = client.request('http://api.twitter.com/1/account/verify_credentials.json')
+            if resp['status'] != '200':
+                # cannot get user info. should check status
+                return None
+            u = json.loads(content)
+            return dict(username=u['screen_name'], name=u['name'], registration_id=u['id'])
+
+auth.settings.actions_disabled=['register','change_password','request_reset_password','profile']
+auth.settings.login_form=TwitterTest(globals(),CLIENT_ID,CLIENT_SECRET, AUTH_URL, TOKEN_URL, ACCESS_TOKEN_URL)
+
+# redirect on login
+auth.settings.login_next=URL('home_timeline')
 
 crud.settings.auth = None                      # =auth to enforce authorization on crud
 
