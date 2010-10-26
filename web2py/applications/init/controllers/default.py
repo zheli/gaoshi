@@ -15,6 +15,7 @@ if 0:
 ## - call exposes all registered services (none by default)
 #########################################################################  
 
+@auth.requires_login()
 def index():
     """
     example action using the internationalization operator T and flash

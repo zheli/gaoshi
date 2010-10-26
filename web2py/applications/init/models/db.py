@@ -38,6 +38,18 @@ mail.settings.sender = 'you@gmail.com'         # your email
 mail.settings.login = 'username:password'      # your credentials or None
 
 auth.settings.hmac_key = 'sha512:4c039af3-ed8c-49dd-9544-d986c3da8c14'   # before define_tables()
+auth_table = db.define_table(
+    auth.settings.table_user_name,
+    Field('first_name', length=128, default=""),
+    Field('last_name', length=128, default=""),
+    Field('username', length=128, default="", unique=True),
+    Field('password', 'password', length=256,
+          readable=False, label='Password'),
+    Field('registration_key', length=128, default= "",
+          writable=False, readable=False))
+
+auth_table.username.requires = IS_NOT_IN_DB(db, auth_table.username)
+
 auth.define_tables()                           # creates all needed tables
 auth.settings.mailer = mail                    # for user email verification
 auth.settings.registration_requires_verification = False
@@ -55,6 +67,33 @@ auth.messages.reset_password = 'Click on the link http://'+request.env.http_host
 #    url = "http://localhost:8000/%s/default/user/login" % request.application)
 ## other login methods are in gluon/contrib/login_methods
 #########################################################################
+doa = local_import('douban_oauth_data')
+CLIENT_ID=doa.CLIENT_ID
+CLIENT_SECRET=doa.CLIENT_SECRET
+AUTH_URL=doa.AUTH_URL
+TOKEN_URL=doa.TOKEN_URL
+ACCESS_TOKEN_URL=doa.ACCESS_TOKEN_URL
+from gluon.contrib.login_methods.oauth10a_account import OAuthAccount
+import oauth2 as oauth
+import gluon.contrib.simplejson as json
+import urllib
+class DoubanTest(OAuthAccount):
+    def get_user(self):
+        if self.accessToken() is not None:
+            client = oauth.Client(self.consumer, self.accessToken())
+            resp, content = client.request('http://api.douban.com/people/%s?alt=json' % urllib.quote('@me'))
+            if resp['status'] != '200':
+                # cannot get user info. should check status
+                return None
+            u = json.loads(content)
+            print(content)
+            return dict(username=u['db:uid']['$t'], name=u['db:uid']['$t'], registration_id=u['id']['$t'])
+
+auth.settings.actions_disabled=['register','change_password','request_reset_password','profile']
+auth.settings.login_form=DoubanTest(globals(),CLIENT_ID,CLIENT_SECRET, AUTH_URL, TOKEN_URL, ACCESS_TOKEN_URL)
+
+# redirect on login
+auth.settings.login_next=URL('index')
 
 crud.settings.auth = None                      # =auth to enforce authorization on crud
 
