@@ -1,5 +1,0 @@
-CLIENT_ID="uorQXd2zHgDnnMA2vuWOg"
-CLIENT_SECRET="p1yLS6bOUFSSxYCuoprFjJuuFCmo6yJDLiAetox1Q"
-AUTH_URL="https://api.twitter.com/oauth/authorize"
-TOKEN_URL="https://api.twitter.com/oauth/request_token"
-ACCESS_TOKEN_URL="https://api.twitter.com/oauth/access_token"
