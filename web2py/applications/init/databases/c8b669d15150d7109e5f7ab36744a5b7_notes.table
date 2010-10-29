@@ -3,12 +3,28 @@ S'content'
 p2
 S'TEXT'
 p3
-sS'create_by'
+sS'date'
 p4
-S'INTEGER REFERENCES auth_user(id) ON DELETE CASCADE'
+S'TIMESTAMP'
 p5
-sS'id'
+sS'created_by'
 p6
-S'INTEGER PRIMARY KEY AUTOINCREMENT'
+S'INTEGER REFERENCES auth_user(id) ON DELETE CASCADE'
 p7
+sS'latitude'
+p8
+S'DOUBLE'
+p9
+sS'create_by'
+p10
+S'INTEGER REFERENCES auth_user(id) ON DELETE CASCADE'
+p11
+sS'id'
+p12
+S'INTEGER PRIMARY KEY AUTOINCREMENT'
+p13
+sS'longitude'
+p14
+S'DOUBLE'
+p15
 s.

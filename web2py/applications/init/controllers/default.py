@@ -21,8 +21,16 @@ def index():
     example action using the internationalization operator T and flash
     rendered by views/default/index.html or views/generic.html
     """
+    form = SQLFORM(db.notes, fields=['content'], _name='myform', showid=True,
+                   labels = {'content': 'Your notes'}, hidden=dict(lat="", lng=""))
+    if form.accepts(request.vars, session):
+        response.flash = 'form accepted'
+    elif form.errors:
+        response.flash = 'form has errors'
+    else:
+        response.flash = 'please fill out the form'
     response.flash = T('Welcome to web2py')
-    return dict(message=T('Hello World'))
+    return dict(form=form, message=T('Hello World'))
 
 
 def user():
@@ -60,6 +68,11 @@ def call():
     session.forget()
     return service()
 
+@auth.requires_login()
+def post():
+    print(request.vars)
+    return TR(TD(request.vars.lat), TD("_"), TD(request.vars.lng), TD("_"), TD(request.vars.content))
+    
 @service.json
 def getNotes(lat, lng):
     """

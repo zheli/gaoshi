@@ -114,5 +114,13 @@ crud.settings.auth = None                      # =auth to enforce authorization 
 ## >>> for row in rows: print row.id, row.myfield
 #########################################################################
 db.define_table('notes',
-                Field('create_by', db.auth_user, default=auth.user_id),
-                Field('content', 'text'))
+                Field('created_by', db.auth_user, default=auth.user_id),
+                Field('content',   'text'),
+                Field('latitude',  'double'),
+                Field('longitude', 'double'),
+                Field('date',      'datetime'))
+db.notes.created_by.requires = IS_NOT_EMPTY()
+db.notes.created_by.readable = db.notes.created_by.writable = False
+db.notes.date.readable = db.notes.date.writable = False
+#db.notes.latitude.readable = db.notes.latitude.writable = False
+#db.notes.longitude.readable = db.notes.longitude.writable = False

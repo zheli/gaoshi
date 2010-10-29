@@ -29,7 +29,7 @@
                		browserSupportFlag = true;
                    	navigator.geolocation.getCurrentPosition(function(position) {
                        	currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                        initialLocation = currentLocation;
+                       	initialLocation = currentLocation;
 						map.setCenter(initialLocation);
 						markMyself(initialLocation);
 						placeNotes(position.coords.latitude, position.coords.longitude);
@@ -52,10 +52,10 @@
                     });
 			}
  
-			function placeNotes(lat, lng) {
-				$('#result').append('<p>' + lat + ',' + lng + '</p>');
+			function placeNotes(latitude, longitude) {
+				$('#result').append('<p>' + latitude + ',' + longitude + '</p>');
 				$.getJSON('{{=URL(r=request, c="default", f="call/json/getNotes")}}', 
-						{"lat": lat, "lng": lng},
+						{"lat": latitude, "lng": longitude},
 						function(data){
 							$.each(data.notes, function(i, item){
 								var marker = new google.maps.Marker({
@@ -66,6 +66,8 @@
 							});
 						}
 				);
+				document.myform.lat.value = latitude.toString();
+				document.myform.lng.value = longitude.toString();
 			}
  
            	function handleNoGeolocation(errorFlag) {
@@ -79,8 +81,20 @@
           	});
         </script> 
     </head> 
-    <body> 
+    <body>
+    	<div id="user_info">{{try:}}{{=auth.navbar(action=URL(request.application,'default','user'))}}{{except:pass}}</div>
         <div id="map_canvas"></div>
         <div id="result"></div>
+        <div id="post">
+<!--        	<form enctype="multipart/form-data" name="input_form"-->
+<!--        	action="{{=URL(request.application, 'default', 'post')}}" method="post">-->
+<!--        		What's your note?<br/>-->
+<!--        		<input name="content" />-->
+<!--        		<input name="lat" value="" type="hidden" />-->
+<!--        		<input name="lng" value="" type="hidden" />-->
+<!--        		<input type="submit" />-->
+<!--        	</form>-->
+        	{{=form}}
+        </div>
     </body> 
 </html>
